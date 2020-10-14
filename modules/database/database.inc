@@ -17,7 +17,7 @@ stock Task:db_sendConnectionCheck() {
     );
 
     pawn_register_callback("db_connectionVerified", "tdb_connectionVerified", _, "ei", t); //"e" does not need an argument
-    pawn_register_callback("OnRequestFailure", "t_OnRequestFailure", _, "eii", t, req); //"e" does not need an argument
+    pawn_register_callback("OnRequestFailure", "t_OnRequestFailure", _, "eii", t, _:req); //"e" does not need an argument
     return Task:t;
 }
 
@@ -30,7 +30,7 @@ public db_connectionVerified(Request:id, E_HTTP_STATUS:status, Node:node) {
 
 forward tdb_connectionVerified(CallbackHandler:cb_id, Task:t, Request:id, E_HTTP_STATUS:status, Node:node);
 public tdb_connectionVerified(CallbackHandler:cb_id, Task:t, Request:id, E_HTTP_STATUS:status, Node:node) {
-    task_set_result(t, node);
+    task_set_result(t, _:node);
     pawn_unregister_callback(cb_id);
     return 1;
 }
@@ -39,17 +39,9 @@ public OnRequestFailure(Request:id, errorCode, errorMessage[], len) {
     return 1;
 }
 
-forward t_OnRequestFailure(CallbackHandler:cb_id, Task:t, Request:source, Request:id, errorCode, errorMessage[], len);
-public t_OnRequestFailure(CallbackHandler:cb_id, Task:t, Request:source, Request:id, errorCode, errorMessage[], len) {
-    if(id == source) {
-        task_set_result(t, JsonObject("failure", JsonInt(0)));
-        pawn_unregister_callback(cb_id);
-    }
-}
-
 stock Task:db_getAccount(const name[]) {
     new
-    Task:t = task_new(),
+        Task:t = task_new(),
         string[64],
         RequestsClient:req = RequestsClient("http://localhost:3000/");
     format(string, sizeof(string), "findAccount?name=%s", name);
@@ -65,16 +57,12 @@ stock Task:db_getAccount(const name[]) {
     return Task:t;
 }
 
-forward db_accountFound(Request:id, E_HTTP_STATUS:status, Node:node);
-public db_accountFound(Request:id, E_HTTP_STATUS:status, Node:node) {
-    return 1;
-}
-
-forward tdb_accountFound(CallbackHandler:cb_id, Task:t, Request:id, E_HTTP_STATUS:status, Node:node);
-public tdb_accountFound(CallbackHandler:cb_id, Task:t, Request:id, E_HTTP_STATUS:status, Node:node) {
-    task_set_result(t, node);
-    pawn_unregister_callback(cb_id);
-    return 1;
+stock Task:db_bcrypt(password[]) {
+    new
+        Task:t = task_new();
+    bcrypt_hash(password, 12, "db_onPasswordHashed");
+    pawn_register_callback("db_onPasswordHashed", "tdb_onPasswordHashed", _, "ei", t);
+    return t;
 }
 
 stock Task:db_addAccount(Node:data) {
@@ -102,14 +90,6 @@ stock Task:db_addAccount(Node:data) {
     return t;
 }
 
-stock Task:db_bcrypt(password[]) {
-    new
-    Task:t = task_new();
-    bcrypt_hash(password, 12, "db_onPasswordHashed");
-    pawn_register_callback("db_onPasswordHashed", "tdb_onPasswordHashed", _, "ei", t);
-    return t;
-}
-
 forward db_onPasswordHashed();
 public db_onPasswordHashed() { return 1; }
 
@@ -122,6 +102,18 @@ public tdb_onPasswordHashed(CallbackHandler:cb_id, Task:t) {
     return 1;
 }
 
+forward db_accountFound(Request:id, E_HTTP_STATUS:status, Node:node);
+public db_accountFound(Request:id, E_HTTP_STATUS:status, Node:node) {
+    return 1;
+}
+
+forward tdb_accountFound(CallbackHandler:cb_id, Task:t, Request:id, E_HTTP_STATUS:status, Node:node);
+public tdb_accountFound(CallbackHandler:cb_id, Task:t, Request:id, E_HTTP_STATUS:status, Node:node) {
+    task_set_result(t, _:node);
+    pawn_unregister_callback(cb_id);
+    return 1;
+}
+
 forward db_accountAdded(Request:id, E_HTTP_STATUS:status, Node:node);
 public db_accountAdded(Request:id, E_HTTP_STATUS:status, Node:node) {
     return 1;
@@ -129,7 +121,15 @@ public db_accountAdded(Request:id, E_HTTP_STATUS:status, Node:node) {
 
 forward tdb_accountAdded(CallbackHandler:cb_id, Task:t, Request:id, E_HTTP_STATUS:status, Node:node);
 public tdb_accountAdded(CallbackHandler:cb_id, Task:t, Request:id, E_HTTP_STATUS:status, Node:node) {
-    task_set_result(t, node);
+    task_set_result(t, _:node);
     pawn_unregister_callback(cb_id);
     return 1;
+}
+
+forward t_OnRequestFailure(CallbackHandler:cb_id, Task:t, Request:source, Request:id, errorCode, errorMessage[], len);
+public t_OnRequestFailure(CallbackHandler:cb_id, Task:t, Request:source, Request:id, errorCode, errorMessage[], len) {
+    if(id == source) {
+        task_set_result(t, _:JsonObject("failure", JsonInt(0)));
+        pawn_unregister_callback(cb_id);
+    }
 }

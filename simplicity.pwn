@@ -33,7 +33,7 @@ public OnGameModeInit() {
         ----------------------------------------------------------------------
     */
     task_yield(1);
-    new Node:res = await db_sendConnectionCheck();
+    new Node:res = Node:await db_sendConnectionCheck();
 
     /*
         Node:res is a JSON returned by db_sendConnectionCheck
@@ -64,7 +64,7 @@ public OnGameModeInit() {
         "age", JsonInt(random(13) + 18),
         "password", JsonString("this-is-raw-password")
     );
-    res = await db_addAccount(account);
+    res = Node:await db_addAccount(account);
 
     json_ret = JsonGetInt(res, "successful", successful);
     print((successful && !json_ret) ? "INFO: A new account has been added" : "ERROR: Failed to add a new account");
@@ -80,7 +80,7 @@ public OnGameModeInit() {
         hash[BCRYPT_HASH_LENGTH],
         age;
 
-    res = await db_getAccount(acc_name);
+    res = Node:await db_getAccount(acc_name);
 
     json_ret = JsonGetString(res, "name", name, sizeof(name));
     json_ret = JsonGetInt(res, "age", age);
