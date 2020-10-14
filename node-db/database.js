@@ -9,8 +9,8 @@ let AccountSchema = mongoose.Schema({
 let Account = mongoose.model("Account", AccountSchema, "accounts");
 
 let db_successful = 0;
-mongoose.connect("mongodb://localhost:27017/simplicity", { useNewUrlParser: true, useCreateIndex: true, useFindAndModify: false, useUnifiedTopology: true}, (err) => {
-	if(err) {
+mongoose.connect("mongodb://localhost:27017/simplicity", { useNewUrlParser: true, useCreateIndex: true, useFindAndModify: false, useUnifiedTopology: true }, (err) => {
+	if (err) {
 		throw err;
 	}
 });

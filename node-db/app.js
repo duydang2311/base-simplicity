@@ -28,11 +28,11 @@ app.get("/req", (req, res) => {
 	res.send("Nice!");
 });
 
-for(let i = 0; i != posts.length; i++) {
+for (let i = 0; i != posts.length; i++) {
 	app.post(posts[i].name, posts[i].method);
 }
 
-for(let i = 0; i != gets.length; i++) {
+for (let i = 0; i != gets.length; i++) {
 	app.get(gets[i].name, gets[i].method);
 }
 

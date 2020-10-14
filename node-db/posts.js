@@ -10,7 +10,7 @@ module.exports = [
 
 			let account = new Account(req.body);
 			account.save((err, account) => {
-				if(err) {
+				if (err) {
 					throw err;
 				}
 				console.log(`New account '${account.name}' [age: ${account.age} | password: ${account.password}] added.`);

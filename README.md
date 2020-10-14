@@ -2,59 +2,53 @@
 
 [![sampctl](https://img.shields.io/badge/sampctl-base--simplicity-2f2f2f.svg?style=for-the-badge)](https://github.com/duydang2311/base-simplicity)
 
-<!--
-Short description of your library, why it's useful, some examples, pictures or
-videos. Link to your forum release thread too.
+## Introduction
 
-Remember: You can use "forumfmt" to convert this readme to forum BBCode!
+A simple base using Pawn along with NodeJS + MongoDB
 
-What the sections below should be used for:
+Mainly using RESTful API to send request and response to each other
 
-`## Installation`: Leave this section un-edited unless you have some specific
-additional installation procedure.
+## Requirement
 
-`## Testing`: Whether your library is tested with a simple `main()` and `print`,
-unit-tested, or demonstrated via prompting the player to connect, you should
-include some basic information for users to try out your code in some way.
+Having these installed:
 
-And finally, maintaining your version number`:
+- NodeJS
 
-* Follow [Semantic Versioning](https://semver.org/)
-* When you release a new version, update `VERSION` and `git tag` it
-* Versioning is important for sampctl to use the version control features
-
-Happy Pawning!
--->
+- MongoDB
 
 ## Installation
 
-Simply install to your project:
+Simply clone this repository:
 
 ```bash
-sampctl package install duydang2311/base-simplicity
+git clone https://github.com/duydang2311/base-simplicity.git
 ```
 
-Include in your code and begin using the library:
+## Setup
 
-```pawn
-#include <base-simplicity>
+Inside the main folder, run the following command to install all the `Pawn` dependencies:
+
+```bash
+sampctl package ensure
+```
+
+Inside the folder `node-db`, run the following command to install all the `npm` packages:
+
+```bash
+npm install
 ```
 
 ## Usage
 
-<!--
-Write your code documentation or examples here. If your library is documented in
-the source code, direct users there. If not, list your API and describe it well
-in this section. If your library is passive and has no API, simply omit this
-section.
--->
+To start the gamemode, be sure to run the MongoDB server first by running this following command inside the folder `node-db`:
+
+```bash
+npm start
+```
+
+After that, start your gamemode (`samp-server.exe` or `sampctl package run`)
 
 ## Testing
-
-<!--
-Depending on whether your package is tested via in-game "demo tests" or
-y_testing unit-tests, you should indicate to readers what to expect below here.
--->
 
 To test, simply run the package:
 
