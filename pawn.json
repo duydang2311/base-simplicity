@@ -1,0 +1,71 @@
+{
+	"user": "duydang2311",
+	"repo": "base-simplicity",
+	"entry": "simplicity.pwn",
+	"output": "gamemodes/simplicity.amx",
+	"dependencies": [
+		"sampctl/samp-stdlib",
+		"Southclaws/pawn-requests:0.8.7",
+		"pawn-lang/YSI-Includes@5.x",
+		"IllidanS4/PawnPlus:v1.3.1",
+		"lassir/bcrypt-samp:v2.2.3"
+	],
+	"local": true,
+	"runtime": {
+		"version": "0.3.DL-R1",
+		"mode": "\u003cservermode\u003e",
+		"echo": "-",
+		"rcon_password": "123danCkoi",
+		"port": 7777,
+		"hostname": "Simplicity Development",
+		"maxplayers": 100,
+		"language": "",
+		"mapname": "San Andreas",
+		"weburl": "open.mp",
+		"gamemodetext": "Simplicity",
+		"announce": true,
+		"lanmode": false,
+		"query": true,
+		"rcon": false,
+		"logqueries": false,
+		"sleep": 5,
+		"maxnpc": 0,
+		"stream_rate": 1000,
+		"stream_distance": 200,
+		"onfoot_rate": 30,
+		"incar_rate": 30,
+		"weapon_rate": 30,
+		"chatlogging": true,
+		"timestamp": true,
+		"messageholelimit": 3000,
+		"messageslimit": 500,
+		"ackslimit": 3000,
+		"playertimeout": 10000,
+		"minconnectiontime": 0,
+		"lagcompmode": 1,
+		"connseedtime": 300000,
+		"db_logging": false,
+		"db_log_queries": false,
+		"conncookies": true,
+		"cookielogging": false,
+		"output": true,
+		"extra": {
+			"useartwork": "1"
+		}
+	},
+	"build": {
+		"name": "",
+		"version": "3.10.10",
+		"args": [
+			"-d3",
+			"-;+",
+			"-(+",
+			"-Z+"
+		],
+		"includes": [
+			"libs",
+			"modules/database"
+		],
+		"compiler": {}
+	}
+}
