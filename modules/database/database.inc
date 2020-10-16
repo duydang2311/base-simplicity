@@ -1,11 +1,16 @@
+#if defined _inc_guard_database
+    #endinput
+#endif
+
+#define _inc_guard_database
+
 #include <a_samp>
 #include <PawnPlus>
 #include <bcrypt>
+#include <requests>
 
 stock Task:db_sendConnectionCheck() {
     new Task:t = task_new();
-    //task_detach();
-    //task_yield(t);
 
     new RequestsClient:req = RequestsClient("http://localhost:3000/");
     RequestJSON(
@@ -21,39 +26,21 @@ stock Task:db_sendConnectionCheck() {
     return Task:t;
 }
 
-forward db_connectionVerified(Request:id, E_HTTP_STATUS:status, Node:node);
-public db_connectionVerified(Request:id, E_HTTP_STATUS:status, Node:node) {
-    new value;
-    JsonGetInt(node, "failed", value);
-    return 1;
-}
-
-forward tdb_connectionVerified(CallbackHandler:cb_id, Task:t, Request:id, E_HTTP_STATUS:status, Node:node);
-public tdb_connectionVerified(CallbackHandler:cb_id, Task:t, Request:id, E_HTTP_STATUS:status, Node:node) {
-    task_set_result(t, _:node);
-    pawn_unregister_callback(cb_id);
-    return 1;
-}
-
-public OnRequestFailure(Request:id, errorCode, errorMessage[], len) {
-    return 1;
-}
-
-stock Task:db_getAccount(const name[]) {
+stock Task:db_retrieveAccount(const name[]) {
     new
         Task:t = task_new(),
         string[64],
         RequestsClient:req = RequestsClient("http://localhost:3000/");
-    format(string, sizeof(string), "findAccount?name=%s", name);
+    format(string, sizeof(string), "retrieveAccount?name=%s", name);
     RequestJSON(
         req,
         string,
         HTTP_METHOD_GET,
-        "db_accountFound",
+        "db_accountRetrieved",
         .headers = RequestHeaders()
     );
 
-    pawn_register_callback("db_accountFound", "tdb_accountFound", _, "ei", t);
+    pawn_register_callback("db_accountRetrieved", "tdb_accountRetrieved", _, "ei", t);
     return Task:t;
 }
 
@@ -63,6 +50,27 @@ stock Task:db_bcrypt(password[]) {
     bcrypt_hash(password, 12, "db_onPasswordHashed");
     pawn_register_callback("db_onPasswordHashed", "tdb_onPasswordHashed", _, "ei", t);
     return t;
+}
+
+stock Task:db_bcryptVerify(hash[], input[]) {
+    new Task:t = task_new();
+
+    bcrypt_check(input, hash, "db_onPasswordVerified");
+    pawn_register_callback("db_onPasswordVerified", "tdb_onPasswordVerified", _, "ei", t);
+    return t;
+}
+
+forward db_onPasswordVerified();
+public db_onPasswordVerified() {
+    return 1;
+}
+
+forward tdb_onPasswordVerified(CallbackHandler:cb_id, Task:t);
+public tdb_onPasswordVerified(CallbackHandler:cb_id, Task:t) {
+    printf("%d", bcrypt_is_equal());
+    task_set_result(t, bcrypt_is_equal());
+    pawn_unregister_callback(cb_id);
+    return 1;
 }
 
 stock Task:db_addAccount(Node:data) {
@@ -90,6 +98,50 @@ stock Task:db_addAccount(Node:data) {
     return t;
 }
 
+stock Task:db_sendAccountAuth(const name[], const hash[]) {
+    new
+        Task:t = task_new(),
+        string[512];
+
+    format(string, sizeof(string), "authenticateAccount?name=%s&hash=%s", name, hash);
+    RequestJSON(
+        RequestsClient("http://localhost:3000"),
+        string,
+        HTTP_METHOD_GET,
+        "db_accountAuthenticated",
+        .headers = RequestHeaders()
+    );
+
+    pawn_register_callback("db_accountAuthenticated", "tdb_accountAuthenticated", _, "ei", t);
+    return t;
+}
+
+forward db_accountAuthenticated(Request:id, E_HTTP_STATUS:status, Node:node);
+public db_accountAuthenticated(Request:id, E_HTTP_STATUS:status, Node:node) {
+    return 1;
+}
+
+forward tdb_accountAuthenticated(CallbackHandler:cb_id, Task:t, Request:id, E_HTTP_STATUS:status, Node:node);
+public tdb_accountAuthenticated(CallbackHandler:cb_id, Task:t, Request:id, E_HTTP_STATUS:status, Node:node) {
+    task_set_result(t, _:node);
+    pawn_unregister_callback(cb_id);
+    return 1;
+}
+
+forward db_connectionVerified(Request:id, E_HTTP_STATUS:status, Node:node);
+public db_connectionVerified(Request:id, E_HTTP_STATUS:status, Node:node) {
+    new value;
+    JsonGetInt(node, "failed", value);
+    return 1;
+}
+
+forward tdb_connectionVerified(CallbackHandler:cb_id, Task:t, Request:id, E_HTTP_STATUS:status, Node:node);
+public tdb_connectionVerified(CallbackHandler:cb_id, Task:t, Request:id, E_HTTP_STATUS:status, Node:node) {
+    task_set_result(t, _:node);
+    pawn_unregister_callback(cb_id);
+    return 1;
+}
+
 forward db_onPasswordHashed();
 public db_onPasswordHashed() { return 1; }
 
@@ -102,13 +154,13 @@ public tdb_onPasswordHashed(CallbackHandler:cb_id, Task:t) {
     return 1;
 }
 
-forward db_accountFound(Request:id, E_HTTP_STATUS:status, Node:node);
-public db_accountFound(Request:id, E_HTTP_STATUS:status, Node:node) {
+forward db_accountRetrieved(Request:id, E_HTTP_STATUS:status, Node:node);
+public db_accountRetrieved(Request:id, E_HTTP_STATUS:status, Node:node) {
     return 1;
 }
 
-forward tdb_accountFound(CallbackHandler:cb_id, Task:t, Request:id, E_HTTP_STATUS:status, Node:node);
-public tdb_accountFound(CallbackHandler:cb_id, Task:t, Request:id, E_HTTP_STATUS:status, Node:node) {
+forward tdb_accountRetrieved(CallbackHandler:cb_id, Task:t, Request:id, E_HTTP_STATUS:status, Node:node);
+public tdb_accountRetrieved(CallbackHandler:cb_id, Task:t, Request:id, E_HTTP_STATUS:status, Node:node) {
     task_set_result(t, _:node);
     pawn_unregister_callback(cb_id);
     return 1;
@@ -132,4 +184,24 @@ public t_OnRequestFailure(CallbackHandler:cb_id, Task:t, Request:source, Request
         task_set_result(t, _:JsonObject("failure", JsonInt(0)));
         pawn_unregister_callback(cb_id);
     }
+}
+
+#include <YSI_Coding\y_hooks>
+
+hook OnGameModeInit() {
+    task_yield(1);
+    new Node:res = Node:await db_sendConnectionCheck();
+
+    new successful = 1,
+        json_ret = JsonGetInt(res, "successful", successful);
+
+    if(!successful || json_ret) {
+        print("ERROR: failed to connect to MongoDB\n\n");
+        SendRconCommand("exit");
+        return -1;
+    } else {
+        print("INFO: MongoDB connected");
+    }
+    print("INFO: modules/database loaded");
+    return 1;
 }

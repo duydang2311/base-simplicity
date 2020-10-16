@@ -11,85 +11,40 @@
 
 #define PP_SYNTAX_AWAIT
 
-#include <a_samp>
-#include <requests>
-#include <PawnPlus>
-#include <bcrypt>
-
 #include <database>
+#include <account>
+#include <account_auth>
 
-main() {
-
-}
-
-stock randomCharacter() {
-    return (random(2)) ? random('z' - 'a') + 'a' : random('Z' - 'A') + 'A';
-}
+main() {}
 
 public OnGameModeInit() {
-    /*
-        ----------------------------------------------------------------------
-        MongoDB connection verification
-        ----------------------------------------------------------------------
-    */
-    task_yield(1);
-    new Node:res = Node:await db_sendConnectionCheck();
+    return 1;
+}
 
-    /*
-        Node:res is a JSON returned by db_sendConnectionCheck
-        res.successful == 1 : successful
-        res.successful == 0 : failed
-    */
-    new successful = 1,
-        json_ret;
-    json_ret = JsonGetInt(res, "successful", successful);
-    if(!successful || json_ret) {
-        print("ERROR: failed to connect to MongoDB\n\n");
-        SendRconCommand("exit");
-        return -1;
-    } else {
-        print("INFO: MongoDB connected\n\n");
-    }
+public OnGameModeExit() {
+    return 1;
+}
 
-    /*
-        ----------------------------------------------------------------------
-        Sending a request to add a new account
-        ----------------------------------------------------------------------
-    */
+public OnPlayerConnect(playerid) {
+    return 1;
+}
 
-    new acc_name[64];
-    format(acc_name, sizeof(acc_name), "duydang-%c%c%c%c%c%c%c%c", randomCharacter(), randomCharacter(), randomCharacter(), randomCharacter(), randomCharacter(), randomCharacter(), randomCharacter(), randomCharacter());
-    new Node:account = JsonObject(
-        "name", JsonString(acc_name),
-        "age", JsonInt(random(13) + 18),
-        "password", JsonString("this-is-raw-password")
-    );
-    res = Node:await db_addAccount(account);
+public OnPlayerDisconnect(playerid, reason) {
+    return 1;
+}
 
-    json_ret = JsonGetInt(res, "successful", successful);
-    print((successful && !json_ret) ? "INFO: A new account has been added" : "ERROR: Failed to add a new account");
+public OnPlayerRequestClass(playerid, classid) {
+    return 0;
+}
 
-    /*
-        ----------------------------------------------------------------------
-        Sending a request to find an account by name
-        ----------------------------------------------------------------------
-    */
+public OnPlayerRequestSpawn(playerid) {
+    return 0;
+}
 
-    new
-        name[64],
-        hash[BCRYPT_HASH_LENGTH],
-        age;
+public OnPlayerDeath(playerid, killerid, reason) {
+    return 1;
+}
 
-    res = Node:await db_getAccount(acc_name);
-
-    json_ret = JsonGetString(res, "name", name, sizeof(name));
-    json_ret = JsonGetInt(res, "age", age);
-    json_ret = JsonGetString(res, "password", hash, sizeof(hash));
-
-    if(json_ret) {
-        print("\nFailed to find the account.");
-    } else {
-        printf("\nAccount found: name: %s, age: %d, hash: %s", name, age, hash);
-    }
+public OnRequestFailure(Request:id, errorCode, errorMessage[], len) {
     return 1;
 }

@@ -1,24 +1,33 @@
 let Account = require("./database.js").Account;
+let isConnectionSuccessful = require("./database.js").isConnectionSuccessful;
 
 module.exports = [
 	{
 		name: "/databaseConnectionVerify",
 		method: (req, res) => {
-			console.log(`db connection check ${require("./database.js").isConnectionSuccessful()}`);
 			res.json({
-				"successful": require("./database.js").isConnectionSuccessful()
+				"successful": isConnectionSuccessful()
 			});
 		}
 	},
 	{
-		name: "/findAccount",
+		name: "/retrieveAccount",
 		method: (req, res) => {
-			console.log(req.query);
 			Account.findOne({
 				name: req.query.name
 			}, (err, account) => {
 				res.json(account);
-				console.log(account);
+			});
+		}
+	},
+	{
+		name: "/authenticateAccount",
+		method: (req, res) => {
+			Account.findOne({
+				name: req.query.name,
+				password: req.query.hash
+			}, (err, account) => {
+				res.json(account);
 			});
 		}
 	}

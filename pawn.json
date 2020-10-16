@@ -63,9 +63,18 @@
 			"-Z+"
 		],
 		"includes": [
-			"libs",
-			"modules/database"
+			"modules/database",
+			"modules/account",
+			"modules/utility",
+			"modules/const"
 		],
+		"constants": {
+			"MAX_PLAYERS": "100",
+			"YSI_NO_CACHE_MESSAGE": "",
+			"YSI_NO_OPTIMISATION_MESSAGE": "",
+			"YSI_NO_VERSION_CHECK": "",
+			"YSI_YES_MODE_CACHE": ""
+		},
 		"compiler": {}
 	}
 }
