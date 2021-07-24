@@ -2,6 +2,8 @@
 
 [![sampctl](https://img.shields.io/badge/sampctl-base--simplicity-2f2f2f.svg?style=for-the-badge)](https://github.com/duydang2311/base-simplicity)
 
+EDIT: Seems like I have written many messy PawnPlus task asynchronous operations and over complicated them when they could have been more simplified.
+
 ## Introduction
 
 A simple base using Pawn along with NodeJS + MongoDB
